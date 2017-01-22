@@ -12,6 +12,10 @@ public class ManualStackCropperPrep {
 	
 	public static void main(String[] args) {
 		String path = args[0];
+		double binarizeThresh = 0.1;
+		if (args.length > 1) {
+			binarizeThresh = Double.parseDouble(args[1]);
+		}
 		File dir = new File(path);
 		String[] names = dir.list(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
@@ -31,7 +35,6 @@ public class ManualStackCropperPrep {
 		boolean odd = false;
 		for (String name : names) {
 			double[][] levels = ImageUtils.getLevels(f.readImage(path+"/"+name));
-			double[][] rotLevels = Straightener.straighten(levels);
 			ConnectedComponentProcessor ccprocBig = new ConnectedComponentProcessor() {
 				public void process(double[][] levels, List<int[]> connectedComponent) {
 					if (connectedComponent.size() > 1000) {
@@ -41,18 +44,19 @@ public class ManualStackCropperPrep {
 					}
 				}
 			};
-			ImageUtils.processConnectedComponents(rotLevels, 50.0, ccprocBig);
-			Binarizer.binarizeGlobal(0.13, rotLevels);
+			ImageUtils.processConnectedComponents(levels, 50.0, ccprocBig);
+			Binarizer.binarizeGlobal(binarizeThresh, levels);
 			ConnectedComponentProcessor ccprocSmall = new ConnectedComponentProcessor() {
 				public void process(double[][] levels, List<int[]> connectedComponent) {
-					if (connectedComponent.size() < 20 || connectedComponent.size() > 1000) {
+					if (connectedComponent.size() < 20 || connectedComponent.size() > 500) {
 						for (int[] pixel : connectedComponent) {
 							levels[pixel[0]][pixel[1]] = 255.0;
 						}
 					}
 				}
 			};
-			ImageUtils.processConnectedComponents(rotLevels, 127.0, ccprocSmall);
+			ImageUtils.processConnectedComponents(levels, 127.0, ccprocSmall);
+			double[][] rotLevels = Straightener.straighten(levels);
 			String baseName = (name.lastIndexOf('.') == -1) ? name : name.substring(0, name.lastIndexOf('.'));
 			f.writeImage((odd ? oddDirCol1.getAbsolutePath() : evenDirCol1.getAbsolutePath()) +"/"+ baseName + "_col1.png", ImageUtils.makeImage(rotLevels));
 			f.writeImage((odd ? oddDirCol2.getAbsolutePath() : evenDirCol2.getAbsolutePath()) +"/"+ baseName + "_col2.png", ImageUtils.makeImage(rotLevels));
