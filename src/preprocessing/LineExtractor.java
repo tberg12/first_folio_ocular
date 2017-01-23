@@ -18,20 +18,57 @@ public class LineExtractor {
 	public static List<double[][]> extractLines(double[][] levels) {
 		VerticalProfile verticalProfile = new VerticalProfile(levels);
 		VerticalModel trainedModel = verticalProfile.runEM(5, 100);
-		trainedModel.freezeSizeParams(1);
+//		trainedModel.freezeSizeParams(1);
 		VerticalSegmentation viterbiSegments = verticalProfile.decode(trainedModel);
 //		ImageUtils.display(Visualizer.renderLineExtraction(levels, viterbiSegments));
-		List<Pair<Integer,Integer>> lineBoundaries = viterbiSegments.retrieveLineBoundaries();
+		
 		List<double[][]> result = new ArrayList<double[][]>();
-		for (Pair<Integer,Integer> boundary : lineBoundaries) {
-			double[][] line = new double[levels.length][boundary.getSecond().intValue() - boundary.getFirst().intValue()];
-			for (int y = boundary.getFirst().intValue(); y < boundary.getSecond().intValue(); y++) {
+
+		int topDist = 29;
+		int botDist = 11;
+		List<Pair<Integer,Integer>> segments = viterbiSegments.retrieveLineBoundaries();
+		List<Integer> baselines = viterbiSegments.retrieveBaselines();
+		for (int s=0; s<baselines.size(); ++s) {
+			int base = baselines.get(s);
+			int upper = segments.get(s).getFirst();
+			int lower = segments.get(s).getSecond();
+			double[][] line = new double[levels.length][topDist+botDist];
+			for (int t=0; t<topDist; ++t) {
 				for (int x = 0; x < levels.length; x++) {
-					line[x][y-boundary.getFirst()] = levels[x][y];
+					int pos = base+(t-topDist);
+					if (pos < 0 || pos >= levels[0].length){
+//						if (pos < 0 || pos >= levels[0].length || pos < upper-5 || pos >= lower+5){
+						line[x][t] = ImageUtils.MAX_LEVEL;
+					} else {
+						line[x][t] = levels[x][pos];
+					}
+				}
+			}
+			for (int b=0; b<botDist; ++b) {
+				for (int x = 0; x < levels.length; x++) {
+					int pos = base+b;
+					if (pos < 0 || pos >= levels[0].length){
+//						if (pos < 0 || pos >= levels[0].length || pos < upper-5 || pos >= lower+5){
+						line[x][topDist+b] = ImageUtils.MAX_LEVEL;
+					} else {
+						line[x][topDist+b] = levels[x][pos];
+					}
 				}
 			}
 			result.add(line);
 		}
+		
+//		List<Pair<Integer,Integer>> lineBoundaries = viterbiSegments.retrieveLineBoundaries();
+//		for (Pair<Integer,Integer> boundary : lineBoundaries) {
+//			double[][] line = new double[levels.length][boundary.getSecond().intValue() - boundary.getFirst().intValue()];
+//			for (int y = boundary.getFirst().intValue(); y < boundary.getSecond().intValue(); y++) {
+//				for (int x = 0; x < levels.length; x++) {
+//					line[x][y-boundary.getFirst()] = levels[x][y];
+//				}
+//			}
+//			result.add(line);
+//		}
+		
 		System.out.println("Extractor returned " + result.size() + " line images");
 		return result;
 	}

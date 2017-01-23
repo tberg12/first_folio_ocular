@@ -42,10 +42,10 @@ import tberg.murphy.fileio.f;
 public class FirstFolioMain implements Runnable {
 	
 	@Option(gloss = "Path of the directory that contains the input document images.")
-	public static String inputPath = "/Users/tberg/Desktop/test1";
+	public static String inputPath = "/Users/tberg/Desktop/F-tem/seg_extraction";
 
 	@Option(gloss = "Path of the directory that will contain output transcriptions and line extractions.")
-	public static String outputPath = "/Users/tberg/Desktop/output2";
+	public static String outputPath = "/Users/tberg/Desktop/output";
 
 	@Option(gloss = "Path to write the learned font file to. (Only if learnFont is set to true.)")
 	public static String outputFontPath = "/Users/tberg/Desktop/output/learned.fontser";
@@ -55,7 +55,7 @@ public class FirstFolioMain implements Runnable {
 	public static boolean usePrebuiltLM = true;
 	
 	@Option(gloss = "Path to the language model file.")
-	public static String lmPath = "/Users/tberg/Desktop/ob-longs.lmser";
+	public static String lmPath = "/Users/tberg/Desktop/F-tem/ob-longs.lmser";
 
 	@Option(gloss = "Path to the language text files to train LM.")
 	public static String lmTextPath = "/Users/tberg/git/first_folio_attr/data/txt/F-tem";
@@ -68,7 +68,7 @@ public class FirstFolioMain implements Runnable {
 	
 
 	@Option(gloss = "Path of the font initializer file.")
-	public static String initFontPath = "/Users/tberg/Desktop/init.fontser";
+	public static String initFontPath = "/Users/tberg/Desktop/F-tem/init.fontser";
 
 
 	@Option(gloss = "Quantile to use for pixel value thresholding. (High values mean more black pixels.)")
@@ -82,7 +82,7 @@ public class FirstFolioMain implements Runnable {
 	public static int paddingMaxWidth = 5;
 
 
-	@Option(gloss = "Use Markov chain to generate vertical offsets. (Slower, but more accurate. Turning on Markov offsets my require larger beam size for good results.)")
+	@Option(gloss = "Use Markov chain to generate vertical offsets. (Slower, but more accurate. Turning on Markov offsets may require larger beam size for good results.)")
 	public static boolean markovVerticalOffset = true;
 
 	@Option(gloss = "Size of beam for viterbi inference. (Usually in range 10-50. Increasing beam size can improve accuracy, but will reduce speed.)")
@@ -96,7 +96,7 @@ public class FirstFolioMain implements Runnable {
 
 
 	@Option(gloss = "Engine to use for inner loop of emission cache computation. DEFAULT: Uses Java on CPU, which works on any machine but is the slowest method. OPENCL: Faster engine that uses either the CPU or integrated GPU (depending on processor) and requires OpenCL installation. CUDA: Fastest method, but requires a discrete NVIDIA GPU and CUDA installation.")
-	public static EmissionCacheInnerLoopType emissionEngine = EmissionCacheInnerLoopType.OPENCL;
+	public static EmissionCacheInnerLoopType emissionEngine = EmissionCacheInnerLoopType.CUDA;
 
 	@Option(gloss = "GPU ID when using CUDA emission engine.")
 	public static int cudaDeviceID = 0;

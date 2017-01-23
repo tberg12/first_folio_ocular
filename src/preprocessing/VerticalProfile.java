@@ -2,6 +2,8 @@ package preprocessing;
 
 import preprocessing.VerticalModel.SuffStats;
 import preprocessing.VerticalModel.VerticalModelStateType;
+import image.ImageUtils;
+import image.ImageUtils.PixelType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +69,20 @@ public class VerticalProfile {
 			}
 			return lineBoundaries;
 		}
+
+		public List<Integer> retrieveBaselines() {
+			List<Integer> baselines = new ArrayList<Integer>();
+			for (int i = 0; i < segments.size(); i++) {
+				if (segments.get(i).getFirst() == VerticalModelStateType.BASE) {
+					if (i >= segments.size()) {
+						baselines.add(totalSize);
+					} else {
+						baselines.add(segments.get(i+1).getSecond());
+					}
+				}
+			}
+			return baselines;
+		}
 	}
 
 	public final double[][] image;
@@ -76,20 +92,13 @@ public class VerticalProfile {
 		this.image = image;
 		this.emissionsPerRow = new double[image[0].length];
 		for (int j = 0; j < image[0].length; j++) {
-			double numEdges = 0;
-			for (int i = 0; i < image.length-1; i++) {
-				if (image[i][j] != image[i+1][j]) {
-					numEdges += 1;
+			double numBlackPixels = 0;
+			for (int i = 0; i < image.length; i++) {
+				if (ImageUtils.getPixelType(image[i][j]) == PixelType.BLACK) {
+					numBlackPixels += 1;
 				}
 			}
-			this.emissionsPerRow[j] = numEdges;
-//			double numBlackPixels = 0;
-//			for (int i = 0; i < image.length; i++) {
-//				if (ImageUtils.getPixelType(image[i][j]) == PixelType.BLACK) {
-//					numBlackPixels += 1;
-//				}
-//			}
-//			this.emissionsPerRow[j] = numBlackPixels;
+			this.emissionsPerRow[j] = numBlackPixels;
 		}
 	}
 
@@ -104,7 +113,7 @@ public class VerticalProfile {
 	public VerticalModel runEM(int numItrs, int numRestarts, EMCallback callback) {
 		double bestLogProb = Double.NEGATIVE_INFINITY;
 		VerticalModel bestModel = null;
-		Random rand = new Random();
+		Random rand = new Random(0);
 		for (int r=0; r<numRestarts; ++r) {
 			VerticalModel model = VerticalModel.getRandomlyInitializedModel(image.length, rand);
 			double logNormalizer = Double.NEGATIVE_INFINITY;
