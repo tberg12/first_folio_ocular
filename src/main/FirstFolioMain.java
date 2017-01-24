@@ -45,20 +45,20 @@ public class FirstFolioMain implements Runnable {
 	public static String inputPath = "/Users/tberg/Desktop/F-tem/seg_extraction";
 
 	@Option(gloss = "Path of the directory that will contain output transcriptions and line extractions.")
-	public static String outputPath = "/Users/tberg/Desktop/output";
+	public static String outputPath = "/Users/tberg/Desktop/F-tem-output-ob-uv";
 
 	@Option(gloss = "Path to write the learned font file to. (Only if learnFont is set to true.)")
-	public static String outputFontPath = "/Users/tberg/Desktop/output/learned.fontser";
+	public static String outputFontPath = "/Users/tberg/Desktop/F-tem-output-ob-uv/learned.fontser";
 
 	
 	@Option(gloss = "Whether to use prebuilt LM.")
 	public static boolean usePrebuiltLM = true;
 	
 	@Option(gloss = "Path to the language model file.")
-	public static String lmPath = "/Users/tberg/Desktop/F-tem/ob-longs.lmser";
+	public static String lmPath = "/Users/tberg/Desktop/ob-longs-uv.lmser";
 
 	@Option(gloss = "Path to the language text files to train LM.")
-	public static String lmTextPath = "/Users/tberg/git/first_folio_attr/data/txt/F-tem";
+	public static String lmTextPath = "/Users/tberg/git/first_folio_attr/data/txt/F-lr";
 	
 	@Option(gloss = "LM n-gram order.")
 	public static int lmOrder = 6;
@@ -68,7 +68,7 @@ public class FirstFolioMain implements Runnable {
 	
 
 	@Option(gloss = "Path of the font initializer file.")
-	public static String initFontPath = "/Users/tberg/Desktop/F-tem/init.fontser";
+	public static String initFontPath = "/Users/tberg/Desktop/init.fontser";
 
 
 	@Option(gloss = "Quantile to use for pixel value thresholding. (High values mean more black pixels.)")
@@ -99,7 +99,7 @@ public class FirstFolioMain implements Runnable {
 	public static EmissionCacheInnerLoopType emissionEngine = EmissionCacheInnerLoopType.CUDA;
 
 	@Option(gloss = "GPU ID when using CUDA emission engine.")
-	public static int cudaDeviceID = 0;
+	public static int cudaDeviceID = 1;
 
 	@Option(gloss = "Number of threads to use for LFBGS during m-step.")
 	public static int numMstepThreads = 8;
@@ -168,7 +168,7 @@ public class FirstFolioMain implements Runnable {
 			charIndexer.getIndex(HYPHEN);
 			charIndexer.getIndex(LONGS);
 			charIndexer.lock();
-			lm = LanguageModel.buildFromText(lmTextPath, lmFiles, Integer.MAX_VALUE, charIndexer, lmOrder, LMType.KNESER_NEY, lmPower, true);
+			lm = LanguageModel.buildFromText(lmTextPath, lmFiles, Integer.MAX_VALUE, charIndexer, lmOrder, LMType.KNESER_NEY, lmPower, true, false);
 		}
 		DenseBigramTransitionModel backwardTransitionModel = new DenseBigramTransitionModel(lm);
 		SparseTransitionModel forwardTransitionModel = null;

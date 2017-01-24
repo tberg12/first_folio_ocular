@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
+import java.util.Random;
 
 public class CorpusCounter {
 
@@ -46,8 +47,9 @@ public class CorpusCounter {
     return counts;
   }
   
-  public void count(String fileName, int maxNumLines, Indexer<String> charIndexer, boolean useLongS) {
+  public void count(String fileName, int maxNumLines, Indexer<String> charIndexer, boolean useLongS, boolean useUV) {
     try {
+      Random rand = new Random(0);
       BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
       int lineNumber = 0;
       while (in.ready()) {
@@ -59,6 +61,9 @@ public class CorpusCounter {
         line = line.replaceAll("''", "\"");
         if (useLongS) {
         	line = convertLongS(line);
+        }
+        if (useUV) {
+        	line = flipUV(line, rand);
         }
         int[] indexedLine = new int[line.length()];
         for (int t=0; t<line.length(); ++t) {
@@ -162,6 +167,41 @@ public class CorpusCounter {
     if (order > 1) {
       incrementCounts(ngramArr, order - 1);
     }
+  }
+  
+  public static String flipUV(String line, Random rand) {
+	  StringBuffer buf = new StringBuffer();
+	  for (int i=0; i<line.length(); ++i) {
+		  String c = line.substring(i,i+1);
+		  if (c.equals("u")) {
+			  if (rand.nextBoolean()) {
+				  buf.append("u");
+			  } else {
+				  buf.append("v");
+			  }
+		  } else if (c.equals("U")) {
+			  if (rand.nextBoolean()) {
+				  buf.append("U");
+			  } else {
+				  buf.append("V");
+			  }
+		  } else if (c.equals("v")) {
+			  if (rand.nextBoolean()) {
+				  buf.append("v");
+			  } else {
+				  buf.append("u");
+			  }
+		  } else if (c.equals("V")) {
+			  if (rand.nextBoolean()) {
+				  buf.append("V");
+			  } else {
+				  buf.append("U");
+			  }
+		  } else {
+			  buf.append(c);
+		  }
+	  }
+	  return buf.toString();
   }
   
   public static String convertLongS(String line) {

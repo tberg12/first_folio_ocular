@@ -74,7 +74,7 @@ public class VerticalProfile {
 			List<Integer> baselines = new ArrayList<Integer>();
 			for (int i = 0; i < segments.size(); i++) {
 				if (segments.get(i).getFirst() == VerticalModelStateType.BASE) {
-					if (i >= segments.size()) {
+					if (i >= segments.size()-1) {
 						baselines.add(totalSize);
 					} else {
 						baselines.add(segments.get(i+1).getSecond());

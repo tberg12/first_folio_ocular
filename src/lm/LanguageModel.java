@@ -48,15 +48,15 @@ public class LanguageModel implements Serializable {
 		return new LanguageModel(charIndexer, counter.getCounts(), type, lmPower, false);
 	}
 
-	public static LanguageModel buildFromText(String fileName, int maxNumLines, Indexer<String> charIndexer, int maxOrder, LMType type, double lmPower, boolean useLongS) {
+	public static LanguageModel buildFromText(String fileName, int maxNumLines, Indexer<String> charIndexer, int maxOrder, LMType type, double lmPower, boolean useLongS, boolean useUV) {
 		CorpusCounter counter = new CorpusCounter(maxOrder);
-		counter.count(fileName, maxNumLines, charIndexer, useLongS);
+		counter.count(fileName, maxNumLines, charIndexer, useLongS, useUV);
 		return new LanguageModel(charIndexer, counter.getCounts(), type, lmPower, useLongS);
 	}
 	
-	public static LanguageModel buildFromText(String path, String[] fileNames, int maxNumLines, Indexer<String> charIndexer, int maxOrder, LMType type, double lmPower, boolean useLongS) {
+	public static LanguageModel buildFromText(String path, String[] fileNames, int maxNumLines, Indexer<String> charIndexer, int maxOrder, LMType type, double lmPower, boolean useLongS, boolean useUV) {
 		CorpusCounter counter = new CorpusCounter(maxOrder);
-		for (int i=0; i<fileNames.length; ++i) counter.count(path+"/"+fileNames[i], maxNumLines, charIndexer, useLongS);
+		for (int i=0; i<fileNames.length; ++i) counter.count(path+"/"+fileNames[i], maxNumLines, charIndexer, useLongS, useUV);
 		return new LanguageModel(charIndexer, counter.getCounts(), type, lmPower, useLongS);
 	}
 

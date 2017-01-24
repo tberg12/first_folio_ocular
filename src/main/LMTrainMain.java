@@ -22,7 +22,7 @@ import tberg.murphy.fig.OptionsParser;
 public class LMTrainMain implements Runnable {
 	
 	@Option(gloss = "Output LM file path.")
-	public static String lmPath = "/Users/tberg/Desktop/ob-longs.lmser";
+	public static String lmPath = "/Users/tberg/Desktop/ob-longs-uv-4gm.lmser";
 //	public static String lmPath = "/Users/tberg/Dropbox/corpora/ocr_data/lms/nyt.lmser";
 	
 	@Option(gloss = "Input corpus path.")
@@ -33,14 +33,17 @@ public class LMTrainMain implements Runnable {
 	@Option(gloss = "Use separate character type for long s.")
 	public static boolean useLongS = true;
 	
+	@Option(gloss = "Allow 'u' and 'v' to interchange.")
+	public static boolean useUV = true;
+	
 	@Option(gloss = "Maximum number of lines to use from corpus.")
 	public static int maxLines = 1000000;
 	
 	@Option(gloss = "LM character n-gram length.")
-	public static int charN = 6;
+	public static int charN = 4;
 	
 	@Option(gloss = "Exponent on LM scores.")
-	public static double power = 4.0;
+	public static double power = 3.0;
 	
 	public static void main(String[] args) {
 		LMTrainMain main = new LMTrainMain();
@@ -61,7 +64,7 @@ public class LMTrainMain implements Runnable {
 			charIndexer.getIndex(c);
 		}
 		charIndexer.lock();
-		LanguageModel lm = LanguageModel.buildFromText(textPath, maxLines, charIndexer, charN, LMType.KNESER_NEY, power, useLongS);
+		LanguageModel lm = LanguageModel.buildFromText(textPath, maxLines, charIndexer, charN, LMType.KNESER_NEY, power, useLongS, useUV);
 		writeLM(lm, lmPath);
 	}
 	
