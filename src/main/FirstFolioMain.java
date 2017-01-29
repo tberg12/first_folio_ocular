@@ -45,30 +45,30 @@ public class FirstFolioMain implements Runnable {
 	public static String inputPath = "/Users/tberg/Desktop/F-tem/seg_extraction";
 
 	@Option(gloss = "Path of the directory that will contain output transcriptions and line extractions.")
-	public static String outputPath = "/Users/tberg/Desktop/F-tem-output-ob-uv";
+	public static String outputPath = "/Users/tberg/Desktop/F-tem-old-4gm-4pow";
 
 	@Option(gloss = "Path to write the learned font file to. (Only if learnFont is set to true.)")
-	public static String outputFontPath = "/Users/tberg/Desktop/F-tem-output-ob-uv/learned.fontser";
+	public static String outputFontPath = "/Users/tberg/Desktop/F-tem-old-4gm-4pow/learned.fontser";
 
 	
 	@Option(gloss = "Whether to use prebuilt LM.")
 	public static boolean usePrebuiltLM = true;
 	
 	@Option(gloss = "Path to the language model file.")
-	public static String lmPath = "/Users/tberg/Desktop/ob-longs-uv.lmser";
+	public static String lmPath = "/Users/tberg/Desktop/ob-longs-uv-4gm-4pow-old.lmser";
 
 	@Option(gloss = "Path to the language text files to train LM.")
 	public static String lmTextPath = "/Users/tberg/git/first_folio_attr/data/txt/F-lr";
 	
 	@Option(gloss = "LM n-gram order.")
-	public static int lmOrder = 6;
+	public static int lmOrder = 4;
 	
 	@Option(gloss = "LM power.")
 	public static double lmPower = 4.0;
 	
 
 	@Option(gloss = "Path of the font initializer file.")
-	public static String initFontPath = "/Users/tberg/Desktop/init.fontser";
+	public static String initFontPath = "/Users/tberg/Desktop/init-old.fontser";
 
 
 	@Option(gloss = "Quantile to use for pixel value thresholding. (High values mean more black pixels.)")
@@ -99,7 +99,7 @@ public class FirstFolioMain implements Runnable {
 	public static EmissionCacheInnerLoopType emissionEngine = EmissionCacheInnerLoopType.CUDA;
 
 	@Option(gloss = "GPU ID when using CUDA emission engine.")
-	public static int cudaDeviceID = 1;
+	public static int cudaDeviceID = 0;
 
 	@Option(gloss = "Number of threads to use for LFBGS during m-step.")
 	public static int numMstepThreads = 8;
@@ -213,6 +213,7 @@ public class FirstFolioMain implements Runnable {
 
 				TransitionState[][] decodeStates = new TransitionState[pixels.length][0];
 				int[][] decodeWidths = new int[pixels.length][0];
+				int[][] decodePadWidths = new int[pixels.length][0];
 				int numBatches = (int) Math.ceil(pixels.length / (double) decodeBatchSize);
 
 				for (int b=0; b<numBatches; ++b) {
@@ -239,6 +240,16 @@ public class FirstFolioMain implements Runnable {
 					Pair<Pair<TransitionState[][],int[][]>,Double> decodeStatesAndWidthsAndJointLogProb = dp.decode(beamSize, numDecodeThreads);
 					final TransitionState[][] batchDecodeStates = decodeStatesAndWidthsAndJointLogProb.getFirst().getFirst();
 					final int[][] batchDecodeWidths = decodeStatesAndWidthsAndJointLogProb.getFirst().getSecond();
+					final int[][] batchDecodePadWidths = new int[batchDecodeStates.length][];
+					for (int d=0; d<batchDecodeStates.length; ++d) {
+						batchDecodePadWidths[d] = new int[batchDecodeStates[d].length];
+						int t=0;
+						for (int i=0; i<batchDecodeStates[d].length; ++i) {
+							batchDecodePadWidths[d][i] = emissionModel.getPadWidth(d, t, batchDecodeStates[d][i], batchDecodeWidths[d][i]);
+							t += batchDecodeWidths[d][i];
+						}
+					}
+					
 					System.out.println("Decode: " + (System.nanoTime() - nanoTime)/1000000 + "ms");
 
 					if (iter < numEMIters-1) {
@@ -255,12 +266,15 @@ public class FirstFolioMain implements Runnable {
 					for (int line=0; line<emissionModel.numSequences(); ++line) {
 						decodeStates[startLine+line] = batchDecodeStates[line];
 						decodeWidths[startLine+line] = batchDecodeWidths[line];
+						decodePadWidths[startLine+line] = batchDecodePadWidths[line];
 					}
 				}
 
 				// evaluate
 
 				printTranscription(iter, numEMIters, doc, allEvals, text, decodeStates, charIndexer);
+				writeWhitespaceSumSpacesTranscription(doc, iter, decodeStates, decodeWidths, decodePadWidths, charIndexer);
+				writeWhitespaceTranscription(doc, iter, decodeStates, decodeWidths, decodePadWidths, charIndexer);
 
 			}
 
@@ -375,6 +389,53 @@ public class FirstFolioMain implements Runnable {
 
 			f.writeString(outputPath+"/"+doc.baseName()+".iter-"+iter+".txt", guessOut.toString());
 		}
+	}
+	
+	void writeWhitespaceSumSpacesTranscription(Document doc, int iter, TransitionState[][] decodeStates, int[][] decodeWidths, int[][] decodePadWidths, Indexer<String> charIndexer) {
+		StringBuilder whitespaceFileBuf = new StringBuilder();
+		for (int d=0; d<decodeStates.length; ++d) {
+			TransitionState[] decodeStateLine = decodeStates[d];
+			int[] decodeWidthsLine = decodeWidths[d];
+			int whitespace = 0;
+			for (int i=0; i<decodeStateLine.length; i++) {
+				TransitionState ts = decodeStateLine[i];
+				int w = decodeWidthsLine[i];
+				int c = ts.getCharIndex();
+				if (c == charIndexer.getIndex(SPACE)) {
+					whitespace += w;
+				} else {
+					whitespaceFileBuf.append("{" + whitespace + "}");
+					whitespaceFileBuf.append(charIndexer.getObject(c));
+					whitespace = decodePadWidths[d][i];
+				}
+			}
+			whitespaceFileBuf.append("{" + whitespace + "}");
+			whitespaceFileBuf.append("\n");
+		}
+
+		f.writeString(outputPath+"/"+doc.baseName()+"_white_sum.iter-"+iter+".txt", whitespaceFileBuf.toString());
+	}
+	
+	void writeWhitespaceTranscription(Document doc, int iter, TransitionState[][] decodeStates, int[][] decodeWidths, int[][] decodePadWidths, Indexer<String> charIndexer) {
+		StringBuilder whitespaceFileBuf = new StringBuilder();
+		for (int d=0; d<decodeStates.length; ++d) {
+			TransitionState[] decodeStateLine = decodeStates[d];
+			int[] decodeWidthsLine = decodeWidths[d];
+			for (int i=0; i<decodeStateLine.length; i++) {
+				TransitionState ts = decodeStateLine[i];
+				int w = decodeWidthsLine[i];
+				int c = ts.getCharIndex();
+				whitespaceFileBuf.append(charIndexer.getObject(c));
+				if (c == charIndexer.getIndex(SPACE)) {
+					whitespaceFileBuf.append("{" + w + "}");
+				} else {
+					whitespaceFileBuf.append("{" + decodePadWidths[d][i] + "}");
+				}
+			}
+			whitespaceFileBuf.append("\n");
+		}
+
+		f.writeString(outputPath+"/"+doc.baseName()+"_white.iter-"+iter+".txt", whitespaceFileBuf.toString());
 	}
 
 }
