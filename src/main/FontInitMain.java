@@ -26,7 +26,7 @@ import tberg.murphy.fig.OptionsParser;
 public class FontInitMain implements Runnable {
 
 	@Option(gloss = "Output font file path.")
-	public static String fontPath = "/Users/tberg/Desktop/init-old.fontser";
+	public static String fontPath = "/Users/tberg/Desktop/init-old-apple.fontser";
 //	public static String fontPath = "/Users/tberg/Dropbox/corpora/ocr_data/templates/init.fontser";
 
 	@Option(gloss = "Number of threads to use.")
