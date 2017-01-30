@@ -44,11 +44,11 @@ public class FirstFolioMain implements Runnable {
 	@Option(gloss = "Path of the directory that contains the input document images.")
 	public static String inputPath = "/Users/tberg/Desktop/F-tem/seg_extraction";
 
-	@Option(gloss = "Path of the directory that will contain output transcriptions and line extractions.")
-	public static String outputPath = "/Users/tberg/Desktop/F-tem-old-apple-4gm-4pow";
+	@Option(gloss = "Path of the directory that will contain output directory.")
+	public static String outputPath = "/Users/tberg/Desktop/";
 
-	@Option(gloss = "Path to write the learned font file to. (Only if learnFont is set to true.)")
-	public static String outputFontPath = "/Users/tberg/Desktop/F-tem-old-apple-4gm-4pow/learned.fontser";
+	@Option(gloss = "Name of output directory.")
+	public static String outputDirName = "F-tem-old-apple-4gm-4pow";
 
 	
 	@Option(gloss = "Whether to use prebuilt LM.")
@@ -134,7 +134,7 @@ public class FirstFolioMain implements Runnable {
 		long overallNanoTime = System.nanoTime();
 		long overallEmissionCacheNanoTime = 0;
 
-		File outputDir = new File(outputPath);
+		File outputDir = new File(outputPath+"/"+outputDirName);
 		if (!outputDir.exists()) {
 			outputDir.mkdirs();
 		}
@@ -146,7 +146,7 @@ public class FirstFolioMain implements Runnable {
 		for (Document doc : documents) {
 			final PixelType[][][] pixels = doc.loadLineImages();
 			System.out.println("Printing line extraction for document: "+doc.baseName());
-			f.writeImage(outputPath+"/line_extract_"+doc.baseName(), Visualizer.renderLineExtraction(pixels));
+			f.writeImage(outputPath+"/"+outputDirName+"/line_extract_"+doc.baseName(), Visualizer.renderLineExtraction(pixels));
 		}
 
 		System.out.println("Loading LM..");
@@ -297,7 +297,7 @@ public class FirstFolioMain implements Runnable {
 		}
 		
 		if (learnFont) {
-			FontInitMain.writeFont(font, outputFontPath);
+			FontInitMain.writeFont(font, outputPath + "/" + outputDirName + "/learned.fontser");
 		}
 
 		if (!allEvals.isEmpty()) {
@@ -331,7 +331,7 @@ public class FirstFolioMain implements Runnable {
 		buf.append("\nMarco-avg total eval:\n");
 		buf.append(Evaluator.renderEval(totalSuffStats)+"\n");
 
-		f.writeString(outputPath+"/eval.txt", buf.toString());
+		f.writeString(outputPath+"/"+outputDirName+"/eval.txt", buf.toString());
 		System.out.println();
 		System.out.println(buf.toString());
 	}
@@ -376,7 +376,7 @@ public class FirstFolioMain implements Runnable {
 			}
 			System.out.println(guessAndGoldOut.toString()+Evaluator.renderEval(evals));
 
-			f.writeString(outputPath+"/"+doc.baseName()+".iter-"+iter+".txt", guessAndGoldOut.toString()+Evaluator.renderEval(evals));
+			f.writeString(outputPath+"/"+outputDirName+"/"+doc.baseName()+".iter-"+iter+".txt", guessAndGoldOut.toString()+Evaluator.renderEval(evals));
 		} else {
 			StringBuffer guessOut = new StringBuffer();
 			for (int line=0; line<decodeStates.length; ++line) {
@@ -387,7 +387,7 @@ public class FirstFolioMain implements Runnable {
 			}
 			System.out.println(guessOut.toString());
 
-			f.writeString(outputPath+"/"+doc.baseName()+".iter-"+iter+".txt", guessOut.toString());
+			f.writeString(outputPath+"/"+outputDirName+"/"+doc.baseName()+".iter-"+iter+".txt", guessOut.toString());
 		}
 	}
 	
@@ -413,7 +413,7 @@ public class FirstFolioMain implements Runnable {
 			whitespaceFileBuf.append("\n");
 		}
 
-		f.writeString(outputPath+"/"+doc.baseName()+"_white_sum.iter-"+iter+".txt", whitespaceFileBuf.toString());
+		f.writeString(outputPath+"/"+outputDirName+"/"+doc.baseName()+"_white_sum.iter-"+iter+".txt", whitespaceFileBuf.toString());
 	}
 	
 	void writeWhitespaceTranscription(Document doc, int iter, TransitionState[][] decodeStates, int[][] decodeWidths, int[][] decodePadWidths, Indexer<String> charIndexer) {
@@ -435,7 +435,7 @@ public class FirstFolioMain implements Runnable {
 			whitespaceFileBuf.append("\n");
 		}
 
-		f.writeString(outputPath+"/"+doc.baseName()+"_white.iter-"+iter+".txt", whitespaceFileBuf.toString());
+		f.writeString(outputPath+"/"+outputDirName+"/"+doc.baseName()+"_white.iter-"+iter+".txt", whitespaceFileBuf.toString());
 	}
 
 }
