@@ -1,6 +1,5 @@
 package data;
 
-import tberg.murphy.arrays.a;
 import tberg.murphy.fileio.f;
 import image.ImageUtils;
 import image.ImageUtils.ConnectedComponentProcessor;
@@ -24,6 +23,7 @@ public class FirstFolioRawImageLoader implements DatasetLoader {
 		
 		public RawImageDocument(String inputPath, String baseName, int lineHeight) {
 			this.baseName = baseName;
+			System.out.println("Preparing "+baseName+"..");
 			double[][] levels = ImageUtils.getLevels(f.readImage(inputPath+"/"+baseName));
 			ConnectedComponentProcessor ccprocBig = new ConnectedComponentProcessor() {
 				public void process(double[][] levels, List<int[]> connectedComponent) {

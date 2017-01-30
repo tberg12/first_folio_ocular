@@ -42,13 +42,13 @@ import tberg.murphy.fileio.f;
 public class FirstFolioMain implements Runnable {
 	
 	@Option(gloss = "Path of the directory that contains the input document images.")
-	public static String inputPath = "/Users/tberg/Desktop/F-tem/seg_extraction";
+	public static String inputPath = "/Users/tberg/Desktop/img/F-1h4/single";
 
 	@Option(gloss = "Path of the directory that will contain output directory.")
 	public static String outputPath = "/Users/tberg/Desktop/";
 
 	@Option(gloss = "Name of output directory.")
-	public static String outputDirName = "F-tem-old-apple-6gm-4pow";
+	public static String outputDirName = "test";
 
 	
 	@Option(gloss = "Whether to use prebuilt LM.")

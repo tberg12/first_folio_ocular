@@ -150,7 +150,8 @@ public class VerticalModel {
           sizeLogProbs[i][j] = Double.NEGATIVE_INFINITY;
         }
       }
-      sizeLogProbs[i] = a.log(a.normalize(a.exp(sizeLogProbs[i])));
+//      sizeLogProbs[i] = a.log(a.normalize(a.exp(sizeLogProbs[i])));
+      sizeLogProbs[i] = logNormalize(sizeLogProbs[i]);
 //      System.out.println(Arrays.toString(sizeLogProbs[i]));
       
     }
@@ -163,13 +164,63 @@ public class VerticalModel {
       for (int j = 0; j < this.emissionLogProbs[i].length; j++) {
         this.emissionLogProbs[i][j] = m.gaussianLogProb(emissionMeans[i], emissionVariance, j);
       }
-      this.emissionLogProbs[i] = a.log(a.normalize(a.exp(this.emissionLogProbs[i])));
+//      this.emissionLogProbs[i] = a.log(a.normalize(a.exp(this.emissionLogProbs[i])));
+      this.emissionLogProbs[i] = logNormalize(this.emissionLogProbs[i]);
       // Smooth a little bit; only necessary if the variance isn't set high enough
 //      final double SMOOTHING = 0.001;
 //      this.emissionLogProbs[i] = a.log(a.add(a.scale(a.exp(this.emissionLogProbs[i]), 1.0 - SMOOTHING), SMOOTHING/this.emissionLogProbs[i].length));
 //      assert Math.abs(a.sum(a.exp(this.emissionLogProbs[i])) - 1.0) < 1e-8 : a.sum(a.exp(this.emissionLogProbs[i]));
     }
   }
+  
+  public static final double LOGTOLERANCE = 30.0;
+  
+  public static double logAdd(double[] logV) {
+	    double maxIndex = 0;
+	    double max = Double.NEGATIVE_INFINITY;
+	    for (int i = 0; i < logV.length; i++) {
+	      if (logV[i] > max) {
+	        max = logV[i];
+	        maxIndex = i;
+	      }
+	    }
+	    if (max == Double.NEGATIVE_INFINITY) return Double.NEGATIVE_INFINITY;
+	    // compute the negative difference
+	    double threshold = max - LOGTOLERANCE;
+	    double sumNegativeDifferences = 0.0;
+	    for (int i = 0; i < logV.length; i++) {
+	      if (i != maxIndex && logV[i] > threshold) {
+	        sumNegativeDifferences += Math.exp(logV[i] - max);
+	      }
+	    }
+	    if (sumNegativeDifferences > 0.0) {
+	      return max + Math.log(1.0 + sumNegativeDifferences);
+	    } else {
+	      return max;
+	    }
+	  }
+
+  public static double[] logNormalize(double[] logVx) {
+	  double[] logV = a.copy(logVx);
+	  double logSum = logAdd(logV);      
+	  if (Double.isNaN(logSum)) {
+		  throw new RuntimeException("Bad log-sum");
+	  }
+	  for (int i = 0; i < logV.length; i++) {          
+		  logV[i] -= logSum;
+	  }
+	  return logV;
+  }
+  
+//  private static double[] logNormalize(double[] x) {
+//	  double[] result = a.copy(x);
+//	  double logZ = Double.NEGATIVE_INFINITY;
+//	  for (double val : x) {
+//		  m.logAdd(logZ, val);
+//	  }
+//	  a.addi(result, -logZ);
+//	  return result;
+//  }
   
   private void setSizeParams(double[] sizeMeans, double[] sizeVariances) {
     this.sizeLogProbs = new double[sizeMeans.length][];
