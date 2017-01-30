@@ -48,20 +48,20 @@ public class FirstFolioMain implements Runnable {
 	public static String outputPath = "/Users/tberg/Desktop/";
 
 	@Option(gloss = "Name of output directory.")
-	public static String outputDirName = "F-tem-old-apple-4gm-4pow";
+	public static String outputDirName = "F-tem-old-apple-6gm-4pow";
 
 	
 	@Option(gloss = "Whether to use prebuilt LM.")
 	public static boolean usePrebuiltLM = true;
 	
 	@Option(gloss = "Path to the language model file.")
-	public static String lmPath = "/Users/tberg/Desktop/ob-longs-uv-4gm-4pow-old.lmser";
+	public static String lmPath = "/Users/tberg/Desktop/ob-longs-uv-6gm-4pow-old.lmser";
 
 	@Option(gloss = "Path to the language text files to train LM.")
 	public static String lmTextPath = "/Users/tberg/git/first_folio_attr/data/txt/F-lr";
 	
 	@Option(gloss = "LM n-gram order.")
-	public static int lmOrder = 4;
+	public static int lmOrder = 6;
 	
 	@Option(gloss = "LM power.")
 	public static double lmPower = 4.0;

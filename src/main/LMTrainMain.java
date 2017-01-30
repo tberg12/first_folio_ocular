@@ -22,7 +22,7 @@ import tberg.murphy.fig.OptionsParser;
 public class LMTrainMain implements Runnable {
 	
 	@Option(gloss = "Output LM file path.")
-	public static String lmPath = "/Users/tberg/Desktop/ob-longs-uv-4gm-3pow-old.lmser";
+	public static String lmPath = "/Users/tberg/Desktop/ob-longs-uv-5gm-4pow-old.lmser";
 //	public static String lmPath = "/Users/tberg/Dropbox/corpora/ocr_data/lms/nyt.lmser";
 	
 	@Option(gloss = "Input corpus path.")
@@ -40,10 +40,10 @@ public class LMTrainMain implements Runnable {
 	public static int maxLines = 1000000;
 	
 	@Option(gloss = "LM character n-gram length.")
-	public static int charN = 4;
+	public static int charN = 5;
 	
 	@Option(gloss = "Exponent on LM scores.")
-	public static double power = 3.0;
+	public static double power = 4.0;
 	
 	public static void main(String[] args) {
 		LMTrainMain main = new LMTrainMain();

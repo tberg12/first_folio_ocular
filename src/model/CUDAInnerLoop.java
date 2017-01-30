@@ -41,7 +41,7 @@ public class CUDAInnerLoop implements EmissionCacheInnerLoop {
 		this.numThreads = numThreads;
 		
 		CudaUtil.startup(gpuId);
-		this.cudaModule = CudaUtil.compileAndLoad("/tmp/emission_cache_kernel", kernelSrcShared(), true);
+		this.cudaModule = CudaUtil.compileAndLoad("/home/tbergkir/emission_cache_kernel", kernelSrcShared(), true);
 //		this.cudaModule = CudaUtil.compileAndLoad("/tmp/emission_cache_kernel", kernelSrcPrivate(), true);
 	}
 	
