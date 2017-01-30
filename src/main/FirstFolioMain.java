@@ -45,10 +45,10 @@ public class FirstFolioMain implements Runnable {
 	public static String inputPath = "/Users/tberg/Desktop/F-tem/seg_extraction";
 
 	@Option(gloss = "Path of the directory that will contain output transcriptions and line extractions.")
-	public static String outputPath = "/Users/tberg/Desktop/F-tem-old-4gm-4pow";
+	public static String outputPath = "/Users/tberg/Desktop/F-tem-old-apple-4gm-4pow";
 
 	@Option(gloss = "Path to write the learned font file to. (Only if learnFont is set to true.)")
-	public static String outputFontPath = "/Users/tberg/Desktop/F-tem-old-4gm-4pow/learned.fontser";
+	public static String outputFontPath = "/Users/tberg/Desktop/F-tem-old-apple-4gm-4pow/learned.fontser";
 
 	
 	@Option(gloss = "Whether to use prebuilt LM.")
@@ -68,7 +68,7 @@ public class FirstFolioMain implements Runnable {
 	
 
 	@Option(gloss = "Path of the font initializer file.")
-	public static String initFontPath = "/Users/tberg/Desktop/init-old.fontser";
+	public static String initFontPath = "/Users/tberg/Desktop/init-old-apple.fontser";
 
 
 	@Option(gloss = "Quantile to use for pixel value thresholding. (High values mean more black pixels.)")
