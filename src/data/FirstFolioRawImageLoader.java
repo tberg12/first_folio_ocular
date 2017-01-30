@@ -47,10 +47,6 @@ public class FirstFolioRawImageLoader implements DatasetLoader {
 			};
 			ImageUtils.processConnectedComponents(levels, 127.0, ccprocSmall);
 			
-			int padHeight = 0;
-			double[][] topPadLevels = new double[levels.length][];
-			for (int i=0; i<levels.length; ++i) topPadLevels[i] = a.append(a.add(a.zerosDouble(padHeight), 255.0), levels[i]);
-			
 			List<double[][]> lines = LineExtractor.extractLines(topPadLevels);
 			observations = new PixelType[lines.size()][][];
 			for (int i=0; i<lines.size(); ++i) {
